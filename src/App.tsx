@@ -45,10 +45,13 @@ function App() {
                 AVISO: Este software puede tener errores, uselo bajo su responsabilidad.
           </p>
           <DropZone />
+          
+          <iframe src="https://rcm-eu.amazon-adsystem.com/e/cm?o=30&amp;p=13&amp;l=ez&amp;f=ifr&amp;linkID=7765fbe0e479f8f3ad9e7791a36a6604&amp;t=leinad87-21&amp;tracking_id=leinad87-21"
+            width="468" height="60" scrolling="no"
+            style={{ border: "none", margin: 10 }}></iframe>
         </div>
       </header>
-      
-      </div>
+    </div>
   );
 
 }

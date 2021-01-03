@@ -41,6 +41,8 @@ function App() {
                 <li>Position Value</li>
                 <li>Mark Price</li>
                 <li>Currency</li></ul></ul>
+
+                AVISO: Este software puede tener errores, uselo bajo su responsabilidad.
           </p>
           <DropZone />
         </div>

@@ -34,18 +34,22 @@ export class D6 {
         var first_field_code = page_position == 1 ? 0x2E9 : 0x327;
 
         var campos: ReactElement[] = []
+        campos.push(campo(page_position == 1 ? 0x2DB : 0x320, "D"))
+        campos.push(campo(page_position == 1 ? 0x2DC : 0x321, 2020))
+        
         positions.forEach((pos, idx) => {
             campos.push(campo(first_field_code-1, "N"))
             campos.push(campo(first_field_code, pos.ISIN))
             campos.push(campo(first_field_code + 1, pos.description))
+            campos.push(campo(first_field_code + 5, pos.currency))
             campos.push(campo(first_field_code + 6, this.format_number(pos.count, 0)))
-            campos.push(campo(first_field_code + 7, pos.currency))
             campos.push(campo(first_field_code + 8, this.format_number(pos.value, 2)))
 
             first_field_code = first_field_code + 0xC;
         })
 
         var campos_node = createElement('Campos', null, campos)
+
         var page = createElement('Pagina', null, [tipo, campos_node])
 
         return page

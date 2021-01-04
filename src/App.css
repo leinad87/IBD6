@@ -1,7 +1,7 @@
 .App {
-  /*text-align: center;*/
+  background-color: #282c34;
 }
-
+/*
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -44,9 +44,8 @@
   color: #4aa1f3;
   font-weight: bold;
 }
-
+*/
 .content {
-  /*background-color: white;*/
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -54,6 +53,7 @@
   justify-content: center;
 }
 
+/*
 .info {
   font-size: medium;
   text-align: left;
@@ -61,4 +61,4 @@
 
 li {
   text-align: left;
-}
+}*/

@@ -1,16 +1,19 @@
 import React from 'react';
-import { Button, Alert, Card, Navbar, Container, Image } from 'react-bootstrap';
+import { Form, Alert, Row, Col, Container, Image } from 'react-bootstrap';
 import { D6 } from '../aforix/D6';
 import { Position } from '../aforix/Position';
 
 import './DropZone.css';
 
-export default class DropZone extends React.Component<{}, { text: string }> {
+export default class DropZone extends React.Component {
 
-    constructor(props: any) {
-        super(props);
-        this.state = { text: '' }
+    state = {
+        text: '',
+        default_valor: -1,
+        default_emisor: -1,
+        default_pais: '',
     }
+
 
     downloadTxtFile = (content: string) => {
         const element = document.createElement("a");
@@ -66,8 +69,12 @@ export default class DropZone extends React.Component<{}, { text: string }> {
                         data[headers['Description']],
                         count,
                         value,
-                        currency
+                        currency,
+                        this.state.default_pais,
+                        this.state.default_valor,
+                        this.state.default_emisor
                     )
+
                     aforix.add_position(position)
 
                     // Sum the value of the position to summary
@@ -95,6 +102,66 @@ export default class DropZone extends React.Component<{}, { text: string }> {
     render() {
         return (
             <div className="container">
+
+                <div className="mb-3">
+                    <Form>
+                        <Row>
+                            Si lo desea, elija los valores por defecto para el emisor, valor y pais de cada posición.
+                        </Row>
+                        <Row>
+                            <Col xs lg="4">
+                                <Form.Group controlId="exampleForm.ControlSelect1">
+                                    <Form.Label>7. Emisor</Form.Label>
+                                    <Form.Control as="select"
+                                        value={this.state.default_emisor}
+                                        onChange={e => this.setState({ default_emisor: e.target.value })}>
+                                        <option value={-1}>- Ninguna</option>
+                                        <option value={100}>100. Organismos internacionales de carácter multilateral, para emisores no residentes</option>
+                                        <option value={200}>200. Administraciones Públicas y Corporaciones Regionales y Locales, para emisores no residentes</option>
+                                        <option value={300}>300. Entidades financieras (sector público y sector privado), para emisores no residentes</option>
+                                        <option value={400}>400. Entidades no financieras (sector público y sector privado), para emisores no residentes</option>
+                                        <option value={500}>500. Organismos internacionales de carácter multilateral, para emisores residentes</option>
+                                        <option value={600}>600. Administraciones Públicas y Corporaciones Regionales y Locales, para emisores residentes</option>
+                                        <option value={700}>700. Entidades financieras (sector público y sector privado), para emisores residentes</option>
+                                        <option value={800}>800. Entidades no financieras (sector público y sector privado), para emisores residentes</option>
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+
+                            <Col xs lg="4">
+                                <Form.Group controlId="exampleForm.ControlSelect2">
+                                    <Form.Label>8. Valor</Form.Label>
+                                    <Form.Control as="select"
+                                        value={this.state.default_valor}
+                                        onChange={e => this.setState({ default_valor: e.target.value })}>
+                                        <option value={-1}>- Ninguna</option>
+                                        <option value={0}>00. Derechos de suscripción y otros derechos análogos</option>
+                                        <option value={1}>01. Acciones con derecho a voto</option>
+                                        <option value={2}>02. Acciones sin derecho a voto</option>
+                                        <option value={3}>03. Participaciones en forndos de inversión</option>
+                                        <option value={5}>05. Deuda a largo plazo emitida por Administraciones Públicas, Corporaciones Regionales y Locales</option>
+                                        <option value={6}>06. Otra deuda a largo plazo no convertible en acciones</option>
+                                        <option value={7}>07. Otra deuda a largo plazo convertible en acciones</option>
+                                        <option value={10}>10. Deuda a corto plazo emitida por Administraciones Públicas, Corporaciones Regionales y Locales</option>
+                                        <option value={11}>11. Otra deuda a corto plazo</option>
+                                        <option value={41}>41. Otros valores y derechos</option>
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+
+                            <Col xs lg="4">
+                                <Form.Group controlId="exampleForm.ControlInput1">
+                                    <Form.Label>9.Pais</Form.Label>
+                                    <Form.Control placeholder="Ejemplo: US"
+                                        value={this.state.default_pais}
+                                        onChange={e => this.setState({ default_pais: e.target.value })} />
+                                </Form.Group>
+                            </Col>
+
+                        </Row>
+                    </Form>
+                </div>
+
                 <div className="drop-container"
 
                     onDragOver={this.dragOver}

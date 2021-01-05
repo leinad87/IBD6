@@ -25,7 +25,7 @@ export class D6 {
     }
 
     format_number(number: number, decimals: number) {
-        return number.toLocaleString('es-ES', {minimumFractionDigits: decimals})
+        return number.toLocaleString('es-ES', { minimumFractionDigits: decimals })
     }
 
     build_page(page_position: number, positions: Position[]) {
@@ -36,11 +36,18 @@ export class D6 {
         var campos: ReactElement[] = []
         campos.push(campo(page_position == 1 ? 0x2DB : 0x320, "D"))
         campos.push(campo(page_position == 1 ? 0x2DC : 0x321, 2020))
-        
+
         positions.forEach((pos, idx) => {
-            campos.push(campo(first_field_code-1, "N"))
+            campos.push(campo(first_field_code - 1, "N"))
             campos.push(campo(first_field_code, pos.ISIN))
             campos.push(campo(first_field_code + 1, pos.description))
+            if (pos.emisor > 0)
+                campos.push(campo(first_field_code + 2, pos.emisor))
+            if (pos.valor > 0)
+                campos.push(campo(first_field_code + 3, String(pos.valor).padStart(2, '0')))
+
+            if (pos.country.length > 0)
+                campos.push(campo(first_field_code + 4, pos.country))
             campos.push(campo(first_field_code + 5, pos.currency))
             campos.push(campo(first_field_code + 6, this.format_number(pos.count, 0)))
             campos.push(campo(first_field_code + 8, this.format_number(pos.value, 2)))
@@ -68,7 +75,7 @@ export class D6 {
             console.log("Adding page " + pages)
             const page_size: number = (pages == 0 ? 3 : 6);
             content.push(this.build_page(pages + 1, this.positions.slice(idx, idx + page_size)))
-            
+
             idx = idx + page_size;
             pages = pages + 1;
         }

@@ -69,7 +69,7 @@ export class D6 {
             const page_size: number = (pages == 0 ? 3 : 6);
             content.push(this.build_page(pages + 1, this.positions.slice(idx, idx + page_size)))
             
-            idx = idx + page_size+1;
+            idx = idx + page_size;
             pages = pages + 1;
         }
 

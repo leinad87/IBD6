@@ -12,14 +12,15 @@ export default class DropZone extends React.Component {
         default_valor: -1,
         default_emisor: -1,
         default_pais: '',
+        holders: 1,
     }
 
 
-    downloadTxtFile = (content: string) => {
+    downloadTxtFile = (name: string, content: string) => {
         const element = document.createElement("a");
         const file = new Blob([content], { type: 'application/aforixm' });
         element.href = URL.createObjectURL(file);
-        element.download = "myfile.aforixm";
+        element.download = `${name}.aforixm`;
         document.body.appendChild(element); // Required for this to work in FireFox
         element.click();
     }
@@ -45,8 +46,12 @@ export default class DropZone extends React.Component {
 
 
         data1.then((res) => {
-            var total_ammount: { [key: string]: number } = {}
-            var aforix = new D6()
+            var summary: any = {
+                total_ammount: {},
+                count_positions: 0,
+            }
+
+            var aforix = Array.from({ length: this.state.holders }, (_, i) => new D6());
 
             var headers: { [key: string]: number } = {};
 
@@ -75,25 +80,28 @@ export default class DropZone extends React.Component {
                         this.state.default_emisor
                     )
 
-                    aforix.add_position(position)
+                    var positions = position.split(this.state.holders);
+                    for (var i = 0; i < aforix.length; i++) {
+                        aforix[i].add_position(positions[i]);
+                    }
 
                     // Sum the value of the position to summary
-                    var tmp = total_ammount[currency] || 0;
-                    total_ammount[currency] = tmp + value
-                    console.log(total_ammount)
+                    var tmp = summary.total_ammount[currency] || 0;
+                    summary.total_ammount[currency] = tmp + value
 
                 }
 
             })
-            var content = aforix.build();
-            this.downloadTxtFile(content);
+            aforix.forEach((doc, idx) => {
+                this.downloadTxtFile(`d6_${idx}`, doc.build())
+            })
 
             var total_ammount_str = '';
-            for (var key in total_ammount) {
-                total_ammount_str = total_ammount_str + ` ${key}: ${total_ammount[key].toLocaleString('es-ES', { minimumFractionDigits: 2 })}`;
+            for (var key in summary.total_ammount) {
+                total_ammount_str = total_ammount_str + ` ${key}: ${summary.total_ammount[key].toLocaleString('es-ES', { minimumFractionDigits: 2 })}`;
             }
 
-            this.setState({ text: `Se han encontrado ${aforix.positions.length} posiciones abiertas con un valor total de ${total_ammount_str}` });
+            this.setState({ text: `Se han encontrado ${summary.count_positions} posiciones abiertas con un valor total de ${total_ammount_str}` });
 
         })
     }
@@ -158,6 +166,21 @@ export default class DropZone extends React.Component {
                                 </Form.Group>
                             </Col>
 
+                        </Row>
+                        <Row>
+                            <Col xs lg="4">
+                                <Form.Group controlId="exampleForm.ControlInput1">
+                                    <Form.Label>¿Cúantos titulares tiene la cuenta?</Form.Label>
+                                    <Form.Control as="select" value={this.state.holders}
+                                        onChange={e => this.setState({ holders: e.target.value })}>
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
                         </Row>
                     </Form>
                 </div>

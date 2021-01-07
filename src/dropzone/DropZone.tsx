@@ -2,6 +2,8 @@ import React from 'react';
 import { Form, Alert, Row, Col, Container, Image } from 'react-bootstrap';
 import { D6 } from '../aforix/D6';
 import { Position } from '../aforix/Position';
+import DegiroParser from '../parsers/degiro';
+import InteractiveBrokersParser from '../parsers/interactivebrokers'
 
 import './DropZone.css';
 
@@ -41,57 +43,52 @@ export default class DropZone extends React.Component {
     fileDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         const files = e.dataTransfer.files;
-        var file = files[0]
-        var data1 = file.text();
 
+        var promises = [];
+        for (var i = 0; i < files.length; i++) {
+            promises.push(files[i].text())
+        }
 
-        data1.then((res) => {
+        Promise.all(promises).then((file_texts) => {
             var summary: any = {
                 total_ammount: {},
-                count_positions: 0,
             }
 
             var aforix = Array.from({ length: this.state.holders }, (_, i) => new D6());
 
-            var headers: { [key: string]: number } = {};
+            var positions: Position[] = [];
+            var parsers: any[] = [InteractiveBrokersParser, DegiroParser]
+            file_texts.forEach((text) => {
+                var parser_positions: Position[] = []
+                for (var parser_i = 0; parser_i < parsers.length && parser_positions.length == 0; parser_i++) {
+                    console.log(`Trying parser ${parsers[parser_i].name}`)
+                    parser_positions = parsers[parser_i].parse(text, this.state.default_pais, this.state.default_emisor, this.state.default_valor, this.state.holders)
+                    parser_positions = parser_positions.filter(item => item.ISIN)
 
-            var skip = true;
-            res.split("\n").forEach((line) => {
-                if (line.includes("ISIN")) {
-                    skip = false
-                    line.split(",").forEach((val, idx) => {
-                        headers[val.slice(1, -1)] = idx;
-                    })
-                } else if (!skip && line.length > 0) {
-                    var data = line.split(",").map((x) => x.slice(1, -1));
-
-                    var count = parseInt(data[headers['Quantity']]);
-                    var value = parseFloat(data[headers['PositionValue']]);
-                    var currency = data[headers['CurrencyPrimary']];
-
-                    var position = new Position(
-                        data[headers['ISIN']],
-                        data[headers['Description']],
-                        count,
-                        value,
-                        currency,
-                        this.state.default_pais,
-                        this.state.default_valor,
-                        this.state.default_emisor
-                    )
-
-                    var positions = position.split(this.state.holders);
-                    for (var i = 0; i < aforix.length; i++) {
-                        aforix[i].add_position(positions[i]);
+                    if (parser_positions.length > 0) {
+                        positions = positions.concat(parser_positions)
                     }
+                }
+            })
 
-                    // Sum the value of the position to summary
-                    var tmp = summary.total_ammount[currency] || 0;
-                    summary.total_ammount[currency] = tmp + value
+            if (positions.length == 0) {
+                this.setState({ text: 'No se han encontrado posiciones en el archivo indicado' })
+                return;
+            }
 
+            positions.forEach((position) => {
+                var splited_position = position.split(this.state.holders);
+                for (var i = 0; i < aforix.length; i++) {
+                    aforix[i].add_position(splited_position[i]);
                 }
 
+                // Sum the value of the position to summary
+                var tmp = summary.total_ammount[position.currency] || 0;
+                summary.total_ammount[position.currency] = tmp + position.value
             })
+
+
+
             aforix.forEach((doc, idx) => {
                 this.downloadTxtFile(`d6_${idx}`, doc.build())
             })
@@ -101,7 +98,7 @@ export default class DropZone extends React.Component {
                 total_ammount_str = total_ammount_str + ` ${key}: ${summary.total_ammount[key].toLocaleString('es-ES', { minimumFractionDigits: 2 })}`;
             }
 
-            this.setState({ text: `Se han encontrado ${summary.count_positions} posiciones abiertas con un valor total de ${total_ammount_str}` });
+            this.setState({ text: `Se han encontrado ${positions.length} posiciones abiertas con un valor total de ${total_ammount_str}` });
 
         })
     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Alert, Row, Col, Container, Image } from 'react-bootstrap';
+import { Form, Alert, Row, Col, Accordion, Card, Button, Image } from 'react-bootstrap';
 import { D6 } from '../aforix/D6';
 import { Position } from '../aforix/Position';
 import DegiroParser from '../parsers/degiro';
@@ -109,77 +109,92 @@ export default class DropZone extends React.Component {
             <div className="container">
 
                 <div className="mb-3">
-                    <Form>
-                        <Row>
-                            Si lo desea, elija los valores por defecto para el emisor, valor y pais de cada posición.
+                    <Accordion>
+                        <Card>
+                            <Card.Header>
+                                <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                                    Configuración avanzada
+      </Accordion.Toggle>
+                            </Card.Header>
+                            <Accordion.Collapse eventKey="0">
+                                <Card.Body>
+                                    <Form>
+                                        <Row>
+                                            Si lo desea, elija los valores por defecto para el emisor, valor y pais de cada posición.
                         </Row>
-                        <Row>
-                            <Col xs lg="4">
-                                <Form.Group controlId="exampleForm.ControlSelect1">
-                                    <Form.Label>7. Emisor</Form.Label>
-                                    <Form.Control as="select"
-                                        value={this.state.default_emisor}
-                                        onChange={e => this.setState({ default_emisor: e.target.value })}>
-                                        <option value={-1}>- Ninguna</option>
-                                        <option value={100}>100. Organismos internacionales de carácter multilateral, para emisores no residentes</option>
-                                        <option value={200}>200. Administraciones Públicas y Corporaciones Regionales y Locales, para emisores no residentes</option>
-                                        <option value={300}>300. Entidades financieras (sector público y sector privado), para emisores no residentes</option>
-                                        <option value={400}>400. Entidades no financieras (sector público y sector privado), para emisores no residentes</option>
-                                        <option value={500}>500. Organismos internacionales de carácter multilateral, para emisores residentes</option>
-                                        <option value={600}>600. Administraciones Públicas y Corporaciones Regionales y Locales, para emisores residentes</option>
-                                        <option value={700}>700. Entidades financieras (sector público y sector privado), para emisores residentes</option>
-                                        <option value={800}>800. Entidades no financieras (sector público y sector privado), para emisores residentes</option>
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
+                                        <Row>
+                                            <Col xs lg="4">
+                                                <Form.Group controlId="exampleForm.ControlSelect1">
+                                                    <Form.Label>7. Emisor</Form.Label>
+                                                    <Form.Control as="select"
+                                                        value={this.state.default_emisor}
+                                                        onChange={e => this.setState({ default_emisor: e.target.value })}>
+                                                        <option value={-1}>- Ninguna</option>
+                                                        <option value={100}>100. Organismos internacionales de carácter multilateral, para emisores no residentes</option>
+                                                        <option value={200}>200. Administraciones Públicas y Corporaciones Regionales y Locales, para emisores no residentes</option>
+                                                        <option value={300}>300. Entidades financieras (sector público y sector privado), para emisores no residentes</option>
+                                                        <option value={400}>400. Entidades no financieras (sector público y sector privado), para emisores no residentes</option>
+                                                        <option value={500}>500. Organismos internacionales de carácter multilateral, para emisores residentes</option>
+                                                        <option value={600}>600. Administraciones Públicas y Corporaciones Regionales y Locales, para emisores residentes</option>
+                                                        <option value={700}>700. Entidades financieras (sector público y sector privado), para emisores residentes</option>
+                                                        <option value={800}>800. Entidades no financieras (sector público y sector privado), para emisores residentes</option>
+                                                    </Form.Control>
+                                                </Form.Group>
+                                            </Col>
 
-                            <Col xs lg="4">
-                                <Form.Group controlId="exampleForm.ControlSelect2">
-                                    <Form.Label>8. Valor</Form.Label>
-                                    <Form.Control as="select"
-                                        value={this.state.default_valor}
-                                        onChange={e => this.setState({ default_valor: e.target.value })}>
-                                        <option value={-1}>- Ninguna</option>
-                                        <option value={0}>00. Derechos de suscripción y otros derechos análogos</option>
-                                        <option value={1}>01. Acciones con derecho a voto</option>
-                                        <option value={2}>02. Acciones sin derecho a voto</option>
-                                        <option value={3}>03. Participaciones en forndos de inversión</option>
-                                        <option value={5}>05. Deuda a largo plazo emitida por Administraciones Públicas, Corporaciones Regionales y Locales</option>
-                                        <option value={6}>06. Otra deuda a largo plazo no convertible en acciones</option>
-                                        <option value={7}>07. Otra deuda a largo plazo convertible en acciones</option>
-                                        <option value={10}>10. Deuda a corto plazo emitida por Administraciones Públicas, Corporaciones Regionales y Locales</option>
-                                        <option value={11}>11. Otra deuda a corto plazo</option>
-                                        <option value={41}>41. Otros valores y derechos</option>
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
+                                            <Col xs lg="4">
+                                                <Form.Group controlId="exampleForm.ControlSelect2">
+                                                    <Form.Label>8. Valor</Form.Label>
+                                                    <Form.Control as="select"
+                                                        value={this.state.default_valor}
+                                                        onChange={e => this.setState({ default_valor: e.target.value })}>
+                                                        <option value={-1}>- Ninguna</option>
+                                                        <option value={0}>00. Derechos de suscripción y otros derechos análogos</option>
+                                                        <option value={1}>01. Acciones con derecho a voto</option>
+                                                        <option value={2}>02. Acciones sin derecho a voto</option>
+                                                        <option value={3}>03. Participaciones en forndos de inversión</option>
+                                                        <option value={5}>05. Deuda a largo plazo emitida por Administraciones Públicas, Corporaciones Regionales y Locales</option>
+                                                        <option value={6}>06. Otra deuda a largo plazo no convertible en acciones</option>
+                                                        <option value={7}>07. Otra deuda a largo plazo convertible en acciones</option>
+                                                        <option value={10}>10. Deuda a corto plazo emitida por Administraciones Públicas, Corporaciones Regionales y Locales</option>
+                                                        <option value={11}>11. Otra deuda a corto plazo</option>
+                                                        <option value={41}>41. Otros valores y derechos</option>
+                                                    </Form.Control>
+                                                </Form.Group>
+                                            </Col>
 
-                            <Col xs lg="4">
-                                <Form.Group controlId="exampleForm.ControlInput1">
-                                    <Form.Label>9.Pais</Form.Label>
-                                    <Form.Control placeholder="Ejemplo: US"
-                                        value={this.state.default_pais}
-                                        onChange={e => this.setState({ default_pais: e.target.value })} />
-                                </Form.Group>
-                            </Col>
+                                            <Col xs lg="4">
+                                                <Form.Group controlId="exampleForm.ControlInput1">
+                                                    <Form.Label>9.Pais</Form.Label>
+                                                    <Form.Control placeholder="Ejemplo: US"
+                                                        value={this.state.default_pais}
+                                                        onChange={e => this.setState({ default_pais: e.target.value })} />
+                                                </Form.Group>
+                                            </Col>
 
-                        </Row>
-                        <Row>
-                            <Col xs lg="4">
-                                <Form.Group controlId="exampleForm.ControlInput1">
-                                    <Form.Label>¿Cúantos titulares tiene la cuenta?</Form.Label>
-                                    <Form.Control as="select" value={this.state.holders}
-                                        onChange={e => this.setState({ holders: e.target.value })}>
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                    </Form>
+                                        </Row>
+                                        <Row>
+                                            <Col xs lg="4">
+                                                <Form.Group controlId="exampleForm.ControlInput1">
+                                                    <Form.Label>¿Cúantos titulares tiene la cuenta?</Form.Label>
+                                                    <Form.Control as="select" value={this.state.holders}
+                                                        onChange={e => this.setState({ holders: e.target.value })}>
+                                                        <option>1</option>
+                                                        <option>2</option>
+                                                        <option>3</option>
+                                                        <option>4</option>
+                                                        <option>5</option>
+                                                    </Form.Control>
+                                                </Form.Group>
+                                            </Col>
+                                        </Row>
+                                    </Form>
+
+                                </Card.Body>
+                            </Accordion.Collapse>
+                        </Card>
+                    </Accordion>
+
                 </div>
 
                 <div className="drop-container"

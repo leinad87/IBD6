@@ -87,8 +87,6 @@ export default class DropZone extends React.Component {
                 summary.total_ammount[position.currency] = tmp + position.value
             })
 
-
-
             aforix.forEach((doc, idx) => {
                 this.downloadTxtFile(`d6_${idx}`, doc.build())
             })

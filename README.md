@@ -6,3 +6,8 @@ Puedes usar el software aqui: https://ibd6.netlify.app/
 
 AVISO:
 Este software puede tener errores, uselo bajo su responsabilidad.
+
+
+## Modelo 720
+- [Normativa modelo 720](https://www.agenciatributaria.es/static_files/Sede/Disenyo_registro/DR_Resto_Mod/archivos/modelo_720.pdf)
+- [Envío de documentación](https://www.agenciatributaria.gob.es/AEAT.sede/procedimientoini/GI34.shtml)

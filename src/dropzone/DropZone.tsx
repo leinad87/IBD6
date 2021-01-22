@@ -104,7 +104,7 @@ export default class DropZone extends React.Component {
 
     render() {
         return (
-            <div className="container">
+            <div className="">
 
                 <div className="mb-3">
                     <Accordion>

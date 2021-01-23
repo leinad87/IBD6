@@ -2,8 +2,9 @@ import React from 'react';
 import './App.css';
 import { Button, Alert, Navbar, Nav, Container, Image, Badge } from 'react-bootstrap';
 import GitHub_Logo_White from './images/GitHub_Logo_White.png';
-import D6site from './D6site'
-import Modelo720Form from './Modelo720'
+import BuyACoffeeImage from './images/buy-a-coffee.gif';
+import Modelo from './components/Modelo'
+import Home from './components/Home'
 import {
   BrowserRouter as Router,
   Switch,
@@ -26,28 +27,29 @@ function App() {
         <Navbar bg="dark" sticky="top" variant="dark">
           <Container>
             <Nav className="mr-auto">
-              <Nav.Link href="/D6">Modelo D6</Nav.Link>
-              <Nav.Link href="/720">Modelo 720<Badge pill variant="warning">BETA</Badge ></Nav.Link>
+              <Nav.Link href="/">Inicio</Nav.Link>
+              <Nav.Link href="/modelo/D6">Modelo D6</Nav.Link>
+              <Nav.Link href="/modelo/720">Modelo 720<Badge pill variant="warning">BETA</Badge ></Nav.Link>
             </Nav>
-
+            
+            <Button variant="info" target="_blank" href="https://www.paypal.com/donate?business=RLT78EWATKNGU&amp;currency_code=EUR">
+              <a><Image src={BuyACoffeeImage} width="100px" /></a>
+            </Button>
             <a href="https://github.com/leinad87/IBD6"><Image src={GitHub_Logo_White} width="100px" /></a>
           </Container>
 
         </Navbar >
-        <Switch>
-
-          <Route path="/720">
-            <Modelo720Form />
-          </Route>
-          <Route path="/">
-            <D6site />
-          </Route>
-          <Route path="/D6">
-            <D6site />
-          </Route>
-        </Switch>
+        <div className="content" >
+          <Switch>
+            <Route path="/modelo">
+              <Modelo/>
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </div>
       </Router>
-
 
       <Alert variant="dark" show={!cookies.acceptCookies} className="ml-3 fixed-bottom " style={{ right: "auto" }}>
         <p>Este sitio web usa cookies de Google para ofrecer sus servicios y analizar el tráfico.</p>

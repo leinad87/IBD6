@@ -1,11 +1,11 @@
 import React from 'react';
 import { Form, Alert, Row, Col, Accordion, Card, Button, Image } from 'react-bootstrap';
 
-import InteractiveBrokersActivity from '../parsers/IBactivity';
-import Modelo720 from '../builder/modelo720'
+import InteractiveBrokersActivity from '../../parsers/IBactivity';
+import Modelo720 from '../../builder/modelo720'
 import './DropZone.css';
 
-import countries from '../static/countries.json'
+import countries from '../../static/countries.json'
 
 export default class DropZone extends React.Component {
 

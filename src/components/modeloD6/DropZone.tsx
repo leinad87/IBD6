@@ -1,13 +1,13 @@
 import React from 'react';
 import { Form, Alert, Row, Col, Accordion, Card, Button, Image } from 'react-bootstrap';
-import { D6 } from '../aforix/D6';
-import { Position } from '../aforix/Position';
-import DegiroParser from '../parsers/degiro';
-import InteractiveBrokersParser from '../parsers/interactivebrokers'
+import { D6 } from '../../aforix/D6';
+import { Position } from '../../aforix/Position';
+import DegiroParser from '../../parsers/degiro';
+import InteractiveBrokersParser from '../../parsers/interactivebrokers'
 
 import './DropZone.css';
 
-export default class DropZone extends React.Component {
+export default class DropZoneD6 extends React.Component {
 
     state = {
         text: '',
@@ -210,6 +210,24 @@ export default class DropZone extends React.Component {
                 {this.state.text.length > 0 ?
                     (<Alert variant="dark" className="mt-3">{this.state.text}</Alert>) : null
                 }
+
+                <Card className="mt-5">
+                    <Card.Body>
+                        <p className="info">
+                            Crea en InteractiveBrokers una nueva consulta flex con las sección <b>Posiciones Abiertas</b> y campos:
+                            <ul className="info">
+                                <li>Symbol</li>
+                                <li>Description</li>
+                                <li>ISIN</li>
+                                <li>Quantity</li>
+                                <li>Multiplier</li>
+                                <li>Position Value</li>
+                                <li>Mark Price</li>
+                                <li>Currency</li>
+                            </ul>
+                        Ejecuta la consulta con el perido <b>Mes pasado</b> y format <b>CSV</b>. Guarda el fichero y arrastreloo para generar el informe D6.</p>
+                    </Card.Body>
+                 </Card>
             </div>
         )
     }

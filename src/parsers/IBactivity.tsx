@@ -9,13 +9,15 @@ const ACCOUNT_INFO = "Información sobre la cuenta"
 
 
 export default class InteractiveBrokersActivity {
-
     open_positions: Position[];
     data: any;
+    forex: {[name:string]: number};
 
     constructor(file: string) {
         this.open_positions = [];
         this.data = {}
+        this.forex = {'EUR': 1}
+
         this.parse(file)
     }
 
@@ -68,5 +70,13 @@ export default class InteractiveBrokersActivity {
         this.open_positions = result.map((p: any) => {
             return new Position(p['ISIN'], p['Name'], p['Cantidad'], p['Valor'], p['Divisa'], 'Country', 0, 0)
         });
+
+        groups[OPEN_POSITIONS]
+            .filter((row:any) => row['Header'] == 'Total')
+            .map((row:any, position:number, elements:any) =>{
+                if( row['Divisa'] != 'EUR' ){
+                    this.forex[row['Divisa']] = row['Valor']/elements[position+1]['Valor']
+                }
+            })
     }
 }

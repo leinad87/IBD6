@@ -1,6 +1,9 @@
 .App {
   background-color: #fafafa;
 }
+body {
+  background-color: #fafafa !important;
+}
 /*
 .App-logo {
   height: 40vmin;
@@ -46,11 +49,14 @@
 }
 */
 .content {
-  min-height: 100vh;
-  display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /*justify-content: center;
+  display: flex;*/
+}
+
+.container p {
+  text-align: left !important;
 }
 
 /*

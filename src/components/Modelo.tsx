@@ -31,7 +31,7 @@ export default function Modelo(){
                 </Route>
             </Switch>
                 
-            <p className="mt-5">Si quieres colaborar puedes hacerlo en <a target="_blank" href="https://github.com/leinad87/IBD6">https://github.com/leinad87/IBD6</a> o <a target="_blank" href="https://www.paypal.com/donate?business=RLT78EWATKNGU&amp;currency_code=EUR">invitándome a un café.</a></p>
+            <p className="mt-5">Si quieres colaborar puedes hacerlo en <a target="_blank" href="https://github.com/leinad87/IBD6">https://github.com/leinad87/IBD6</a> o <a target="_blank" href="https://paypal.me/leinad87">invitándome a un café.</a></p>
             </div>
  
         </div >

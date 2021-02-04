@@ -62,8 +62,8 @@ export default class InteractiveBrokersActivity {
         var result = groups[OPEN_POSITIONS]
             .filter((row: any) => row['Header'] == 'Data')
             .map((item: any) => {
-                item['ISIN'] = info[item["Símbolo"]]['ISIN']
-                item['Name'] = info[item["Símbolo"]]['Name']
+                item['ISIN'] = info[item["Símbolo"]]?.['ISIN'] ?? ''
+                item['Name'] = info[item["Símbolo"]]?.['Name'] ?? ''
                 return item;
             })
 

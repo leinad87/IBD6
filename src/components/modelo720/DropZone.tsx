@@ -8,6 +8,7 @@ import './DropZone.css';
 import countries from '../../static/countries.json'
 import { Position } from '../../aforix/Position';
 import InformesImage from '../../images/informes.png';
+import { exception } from 'console';
 
 export default class DropZone extends React.Component {
 
@@ -16,11 +17,12 @@ export default class DropZone extends React.Component {
     state = {
         dni: '',
         text: '',
+        status: 'dark',
         broker_country: '',
         eurusd: '',
         filename: '',
         active_page: 1,
-        modalShow: false
+        modalShow: false,
     }
 
 
@@ -68,10 +70,16 @@ export default class DropZone extends React.Component {
             .then((file_texts) => {
                 this.data = new InteractiveBrokersActivity(file_texts[0]);
             }).then(() => {
-                this.setState({ text: 'ok' })
+
+                let warning = (this.data!.open_positions!.filter((item)=>item.ISIN?false:true).length > 0)
+
+                if (warning)
+                    this.setState({ status: 'warning', text: 'Fichero cargado. Revise los elementos' })
+                else
+                    this.setState({ status: 'success', text: 'Fichero cargado' })
+            }).catch(() => {
+                this.setState({ status: 'danger', text: 'Ha ocurrido un error al leer el fichero.' })
             })
-
-
     }
 
     displayForex() {
@@ -79,7 +87,7 @@ export default class DropZone extends React.Component {
 
         if (this.data != null) {
             for (var key in this.data.forex) {
-                if( key == "EUR") continue;
+                if (key == "EUR") continue;
                 items.push(<Form.Group>
                     <Form.Label>EUR{key}</Form.Label>
                     <Form.Control placeholder={this.data!.forex[key].toFixed(4)}
@@ -100,10 +108,8 @@ export default class DropZone extends React.Component {
     displayElements() {
 
         if (this.data == null) { return }
-        console.log(this.data?.open_positions)
         let items = this.data!.open_positions!.map((item: Position, index: number) => {
             return (
-
                 <tr>
                     <td>{index + 1}</td>
                     <td>{item.description}</td>
@@ -146,39 +152,39 @@ export default class DropZone extends React.Component {
     }
 
 
-    MyVerticallyCenteredModal(props:any) {
+    MyVerticallyCenteredModal(props: any) {
         return (
-          <Modal
-            {...props}
-            size="xl"
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-          >
-            <Modal.Header closeButton>
-              <Modal.Title id="contained-modal-title-vcenter">
-                Como generar el informe anual en Interactive Brokers
+            <Modal
+                {...props}
+                size="xl"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        Como generar el informe anual en Interactive Brokers
               </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <ul>
-                  <li>Dirigete al apartado informes de Interactive Brokers</li>
-                  <li>En la pestaña Extractos, ejecuta la consulta <b>Actividad</b> con las siguientes opciones:</li>
-                  <ul>
-                      <li>Periodo: <b>Anual</b></li>
-                      <li>Fecha: <b>2020</b></li>
-                      <li>Formato: <b>CSV</b></li>
-                  </ul>
-                  <li>Es posible que tengas que esperar hasta que se genere el informe. A la derecha de pantalla informes puedes observar el progreso.</li>
-                  <li>Si tu cuenta ha sido migrada recientemente, puede que no puedas ver la opción <b>Anual</b>. Para ello, haz click en tu identificador de cuenta junto al titulo <b>Informes</b> de la página para cambiar a tu antigua cuenta.</li>
-                  <img src={InformesImage} style={{width:"100%"}}/>
-            </ul>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button onClick={props.onHide}>Cerrar</Button>
-            </Modal.Footer>
-          </Modal>
+                </Modal.Header>
+                <Modal.Body>
+                    <ul>
+                        <li>Dirigete al apartado informes de Interactive Brokers</li>
+                        <li>En la pestaña Extractos, ejecuta la consulta <b>Actividad</b> con las siguientes opciones:</li>
+                        <ul>
+                            <li>Periodo: <b>Anual</b></li>
+                            <li>Fecha: <b>2020</b></li>
+                            <li>Formato: <b>CSV</b></li>
+                        </ul>
+                        <li>Es posible que tengas que esperar hasta que se genere el informe. A la derecha de pantalla informes puedes observar el progreso.</li>
+                        <li>Si tu cuenta ha sido migrada recientemente, puede que no puedas ver la opción <b>Anual</b>. Para ello, haz click en tu identificador de cuenta junto al titulo <b>Informes</b> de la página para cambiar a tu antigua cuenta.</li>
+                        <img src={InformesImage} style={{ width: "100%" }} />
+                    </ul>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={props.onHide}>Cerrar</Button>
+                </Modal.Footer>
+            </Modal>
         );
-      }
+    }
 
     render() {
         return (
@@ -208,13 +214,13 @@ export default class DropZone extends React.Component {
 
                     <Form.Group>
                         <Form.Label>
-                            Informe anual Interacive Brokers 
-                            <a href="#"><Badge variant="info" onClick={() => this.setState({modalShow: true})}>+Info</Badge ></a>
+                            Informe anual Interacive Brokers
+                            <a href="#"><Badge variant="info" onClick={() => this.setState({ modalShow: true })}>+Info</Badge ></a>
                             <this.MyVerticallyCenteredModal
-        show={this.state.modalShow}
-        onHide={() => this.setState({modalShow: false})}
-      />
-                        
+                                show={this.state.modalShow}
+                                onHide={() => this.setState({ modalShow: false })}
+                            />
+
                         </Form.Label>
                         <Form.File onChange={this.onFileChange}
                             id="custom-file"
@@ -228,7 +234,7 @@ export default class DropZone extends React.Component {
                 </Form>
 
                 {this.state.text.length > 0 ?
-                    (<Alert variant="dark" className="mt-3">{this.state.text}</Alert>) : null
+                    (<Alert variant={this.state.status} className="mt-3">{this.state.text}</Alert>) : null
                 }
 
 

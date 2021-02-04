@@ -32,7 +32,7 @@ function App() {
               <Nav.Link href="/modelo/720">Modelo 720<Badge pill variant="warning">BETA</Badge ></Nav.Link>
             </Nav>
             
-            <Button variant="info" target="_blank" href="https://www.paypal.com/donate?business=RLT78EWATKNGU&amp;currency_code=EUR">
+            <Button variant="info" target="_blank" href="https://paypal.me/leinad87">
               <a><Image src={BuyACoffeeImage} width="100px" /></a>
             </Button>
             <a href="https://github.com/leinad87/IBD6"><Image src={GitHub_Logo_White} width="100px" /></a>

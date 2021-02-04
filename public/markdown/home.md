@@ -2,7 +2,7 @@ Bienvenido a **IBD6**. Esta es una aplicación de [código abierto](https://es.w
 
 El código está disponible en [GitHub](https://github.com/leinad87/IBD6) donde podrás colaborar o abrir incidencias. 
 
-Si quieres apoyar el proyecto, puedes invitarme a un café a través de [PayPal](https://www.paypal.com/donate?business=RLT78EWATKNGU&amp;currency_code=EUR).
+Si quieres apoyar el proyecto, puedes invitarme a un café a través de [PayPal](https://paypal.me/leinad87).
 
 #### Modelo D6:  Declaración de titulares de inversión española en el exterior en valores negociables.
 Admite extractos de [Interactive Brokers](https://www.interactivebrokers.eu) y [Degiro](https://www.degiro.es/). Si se añaden los dos, se combinarán ambos informes para generar un solo fichero para abrir con la aplicación [aforix](https://oficinavirtual.comercio.gob.es/AFORIXUpdater/). Tienes más información en el blog pasivamente [Cómo rellenar y presentar el modelo d6](https://www.pasivamente.com/2021/01/como-rellenar-y-presentar-el-modelo-d6.html).

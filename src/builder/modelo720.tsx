@@ -30,7 +30,7 @@ export default class Builder720 {
     }
 
     reg_detail(position: Position) {
-        let value_eur = position.value * 1; //TODO: Convert currency
+        let value_eur = position.value / this.data.forex[position.currency];
         this.total_value += value_eur;
         
         return ''.concat(
@@ -61,14 +61,14 @@ export default class Builder720 {
             '00000000', //424 - 431 Numérico  FECHA DE EXTINCIÓN
             // Valor 31 diciembre
             value_eur > 0 ? ' ' : 'N',
-            Math.trunc(value_eur * 100).toString().padStart(14, '0'), // EUROS
+            Math.round(value_eur * 100).toString().padStart(14, '0'), // EUROS
             // Valor medio
             true ? ' ' : 'N',
-            Math.trunc(0 * 100).toString().padStart(14, '0'), // EUROS
+            Math.round(0 * 100).toString().padStart(14, '0'), // EUROS
             'A', //CLAVE DE REPRESENTACIÓN DE VALORES
-            Math.trunc(position.count * 100).toString().padStart(12, '0'), // NÚMERO DE VALORES
+            Math.round(position.count * 100).toString().padStart(12, '0'), // NÚMERO DE VALORES
             ' ', //CLAVE TIPO DE BIEN INMUEBLE
-            Math.trunc(100 * 100).toString().padStart(5, '0'), //PORCENTAJE DE PARTICIPACIÓN
+            Math.round(100 * 100).toString().padStart(5, '0'), //PORCENTAJE DE PARTICIPACIÓN
             ''.padEnd(20, ' ') // white spaces
         );
     }
@@ -90,10 +90,10 @@ export default class Builder720 {
             count.toString().padStart(9, '0'), // Count
             // Valor 31 diciembre
             this.total_value > 0 ? ' ' : 'N',
-            Math.trunc(this.total_value * 100).toString().padStart(17, '0'), // EUROS
+            Math.round(this.total_value * 100).toString().padStart(17, '0'), // EUROS
             // Valor medio
             true ? ' ' : 'N',
-            Math.trunc(0 * 100).toString().padStart(17, '0'), // EUROS
+            Math.round(0 * 100).toString().padStart(17, '0'), // EUROS
             ''.padEnd(320, ' ') // white spaces
 
         )

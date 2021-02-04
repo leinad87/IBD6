@@ -110,7 +110,7 @@ export default class DropZone extends React.Component {
                     <td>{item.ISIN}</td>
                     <td>{item.count}</td>
                     <td>{item.value}{item.currency}</td>
-                    <td>{(item.value * this.data!.forex[item.currency]).toFixed(2)}EUR</td>
+                    <td>{(item.value / this.data!.forex[item.currency]).toFixed(2)}EUR</td>
                 </tr>
             )
         });

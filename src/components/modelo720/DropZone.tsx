@@ -71,14 +71,15 @@ export default class DropZone extends React.Component {
                 this.data = new InteractiveBrokersActivity(file_texts[0]);
             }).then(() => {
 
-                let warning = (this.data!.open_positions!.filter((item)=>item.ISIN?false:true).length > 0)
+                let warning = (this.data!.open_positions!.filter((item) => item.ISIN ? false : true).length > 0)
 
                 if (warning)
                     this.setState({ status: 'warning', text: 'Fichero cargado. Revise los elementos' })
                 else
                     this.setState({ status: 'success', text: 'Fichero cargado' })
-            }).catch(() => {
+            }).catch((e) => {
                 this.setState({ status: 'danger', text: 'Ha ocurrido un error al leer el fichero.' })
+                console.log(e)
             })
     }
 

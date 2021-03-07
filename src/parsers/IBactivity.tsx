@@ -1,6 +1,7 @@
 import { SSL_OP_EPHEMERAL_RSA } from 'constants';
 import { parse } from 'papaparse';
 import { Position } from '../aforix/Position';
+import IParser from './IParser';
 
 const STATEMENT = "Statement";
 const OPEN_POSITIONS = "Posiciones abiertas";
@@ -8,22 +9,22 @@ const INFO = "Información de instrumento financiero"
 const ACCOUNT_INFO = "Información sobre la cuenta"
 
 
-export default class InteractiveBrokersActivity {
+export default class InteractiveBrokersActivity implements IParser {
     open_positions: Position[];
     data: any;
-    forex: {[name:string]: number};
+    forex: { [name: string]: number };
 
     constructor(file: string) {
         this.open_positions = [];
         this.data = {}
-        this.forex = {'EUR': 1}
+        this.forex = { 'EUR': 1 }
 
         this.parse(file)
     }
 
     getName() {
         return this.data[ACCOUNT_INFO]
-                .filter((e:any) => e['Nombre del campo'] == "Nombre")[0]["Valor del campo"];
+            .filter((e: any) => e['Nombre del campo'] == "Nombre")[0]["Valor del campo"];
     }
 
     parse(file: string) {
@@ -72,10 +73,10 @@ export default class InteractiveBrokersActivity {
         });
 
         groups[OPEN_POSITIONS]
-            .filter((row:any) => row['Header'] == 'Total')
-            .map((row:any, position:number, elements:any) =>{
-                if( row['Divisa'] != 'EUR' ){
-                    this.forex[row['Divisa']] = row['Valor']/elements[position+1]['Valor']
+            .filter((row: any) => row['Header'] == 'Total')
+            .map((row: any, position: number, elements: any) => {
+                if (row['Divisa'] != 'EUR') {
+                    this.forex[row['Divisa']] = row['Valor'] / elements[position + 1]['Valor']
                 }
             })
     }

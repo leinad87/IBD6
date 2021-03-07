@@ -8,12 +8,16 @@ import './DropZone.css';
 import countries from '../../static/countries.json'
 import { Position } from '../../aforix/Position';
 import InformesImage from '../../images/informes.png';
-import { exception } from 'console';
+import DegiroParser from '../../parsers/degiro';
+import IParser from '../../parsers/IParser';
+
+var _ = require('lodash');
 
 export default class DropZone extends React.Component {
 
-    data: InteractiveBrokersActivity | null = null
+    data: IParser[] = []
 
+    forex: { [name: string]: number } = {};
     state = {
         dni: '',
         text: '',
@@ -21,8 +25,10 @@ export default class DropZone extends React.Component {
         broker_country: '',
         eurusd: '',
         filename: '',
+        filenameDegiro: '',
         active_page: 1,
         modalShow: false,
+        name: '',
     }
 
 
@@ -48,55 +54,73 @@ export default class DropZone extends React.Component {
         e.preventDefault();
     }
 
-    fileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    onFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
         e.preventDefault();
-        this.uploadFile(e.dataTransfer.files);
-    }
-
-    onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        this.uploadFile(e!.target!.files!);
+        this.uploadFile(e!.target!.files!, type);
+        console.log(e)
     };
 
-    uploadFile(files: any) {
+    uploadFile(files: any, type: string) {
 
-        var promises = [];
-        for (var i = 0; i < files.length; i++) {
-            this.setState({ filename: files[i].name });
-            promises.push(files[i].text())
+        let readFiles = (setFileName: any, parse: any) => {
+            var promises = [];
+            for (var i = 0; i < files.length; i++) {
+                setFileName(files[i].name);
+                promises.push(files[i].text())
+            }
+
+            Promise.all(promises)
+                .then((file_texts) => {
+                    let parser = parse(file_texts[0])
+                    this.data.push(parser);
+
+                    let warning = (parser!.open_positions!.filter((item: Position) => item.ISIN ? false : true).length > 0);
+                    this.forex = _.merge(this.forex, parser.forex);
+
+                    if (warning)
+                        this.setState({ status: 'warning', text: 'Fichero cargado. Revise los elementos' })
+                    else
+                        this.setState({ status: 'success', text: 'Fichero cargado' })
+
+                    if (parser.getName().length > 0)
+                        this.setState({ name: parser.getName() })
+                }).catch(() => {
+                    this.setState({ status: 'danger', text: 'Ha ocurrido un error al leer el fichero.' })
+                })
         }
 
-        Promise.all(promises)
-            .then((file_texts) => {
-                this.data = new InteractiveBrokersActivity(file_texts[0]);
-            }).then(() => {
+        if (type === 'IB') {
+            readFiles(
+                (filename: string) => this.setState({ filename }),
+                (filename: string) => new InteractiveBrokersActivity(filename)
+            )
+        } else if (type === 'DEGIRO') {
+            readFiles(
+                (filename: string) => this.setState({ filenameDegiro: filename }),
+                (filename: string) => new DegiroParser(filename)
+            )
+        }
 
-                let warning = (this.data!.open_positions!.filter((item)=>item.ISIN?false:true).length > 0)
-
-                if (warning)
-                    this.setState({ status: 'warning', text: 'Fichero cargado. Revise los elementos' })
-                else
-                    this.setState({ status: 'success', text: 'Fichero cargado' })
-            }).catch(() => {
-                this.setState({ status: 'danger', text: 'Ha ocurrido un error al leer el fichero.' })
-            })
     }
 
     displayForex() {
         const items = [];
 
         if (this.data != null) {
-            for (var key in this.data.forex) {
+            for (var key in this.forex) {
                 if (key == "EUR") continue;
-                items.push(<Form.Group>
-                    <Form.Label>EUR{key}</Form.Label>
-                    <Form.Control placeholder={this.data!.forex[key].toFixed(4)}
-                        value={this.state.eurusd}
-                        onChange={e => this.setState({ eurusd: e.target.value })} />
-                    <Form.Text className="text-muted">
-                        Valor calculado a partir del informe subido
+
+                items.push(
+                    <Form.Group>
+                        <Form.Label>EUR{key}</Form.Label>
+                        <Form.Control placeholder={this.forex[key].toFixed(4)}
+                            value={this.state.eurusd}
+                            onChange={e => this.setState({ eurusd: e.target.value })} />
+                        <Form.Text className="text-muted">
+                            Valor calculado a partir del informe subido
                     </Form.Text>
-                </Form.Group>)
+                    </Form.Group>
+                )
             }
         }
 
@@ -107,8 +131,8 @@ export default class DropZone extends React.Component {
 
     displayElements() {
 
-        if (this.data == null) { return }
-        let items = this.data!.open_positions!.map((item: Position, index: number) => {
+        if (this.data == null || this.data.length == 0) { return }
+        let items = this.data.flatMap(i => i.open_positions!.map((item: Position, index: number) => {
             return (
                 <tr>
                     <td>{index + 1}</td>
@@ -116,10 +140,10 @@ export default class DropZone extends React.Component {
                     <td>{item.ISIN}</td>
                     <td>{item.count}</td>
                     <td>{item.value}{item.currency}</td>
-                    <td>{(item.value / this.data!.forex[item.currency]).toFixed(2)}EUR</td>
+                    <td>{(item.value / this.forex[item.currency]).toFixed(2)}EUR</td>
                 </tr>
             )
-        });
+        }));
 
         let items_pagination = [];
         for (let number = 1; number <= ((items.length) / 10) + 1; number++) {
@@ -188,11 +212,7 @@ export default class DropZone extends React.Component {
 
     render() {
         return (
-            <div className=""
-                onDragOver={this.dragOver}
-                onDragEnter={this.dragEnter}
-                onDragLeave={this.dragLeave}
-                onDrop={this.fileDrop}>
+            <div className="">
 
                 <Form>
                     <Form.Group controlId="formBasicEmail">
@@ -213,20 +233,40 @@ export default class DropZone extends React.Component {
                     </Form.Group>
 
                     <Form.Group>
-                        <Form.Label>
-                            Informe anual Interacive Brokers
+                        <Row>
+                            <Col>
+                                <Form.Label>
+                                    Informe anual Interacive Brokers
                             <a href="#"><Badge variant="info" onClick={() => this.setState({ modalShow: true })}>+Info</Badge ></a>
-                            <this.MyVerticallyCenteredModal
-                                show={this.state.modalShow}
-                                onHide={() => this.setState({ modalShow: false })}
-                            />
+                                    <this.MyVerticallyCenteredModal
+                                        show={this.state.modalShow}
+                                        onHide={() => this.setState({ modalShow: false })}
+                                    />
 
+                                </Form.Label>
+                                <Form.File onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onFileChange(e, 'IB')}
+                                    id="custom-file"
+                                    label={this.state.filename}
+                                    custom
+                                />
+
+                            </Col>
+                            <Col>
+                                <Form.Label>Informe anual Degiro</Form.Label>
+                                <Form.File onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onFileChange(e, 'DEGIRO')}
+                                    id="file-degiro"
+                                    label={this.state.filenameDegiro}
+                                    custom
+                                />
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>
+                            Nobre:
                         </Form.Label>
-                        <Form.File onChange={this.onFileChange}
-                            id="custom-file"
-                            label={this.state.filename}
-                            custom
-                        />
+                        <Form.Control value={this.state.name}
+                            onChange={e => this.setState({ name: e.target.value })} />
                     </Form.Group>
                     {this.displayForex()}
                     {this.displayElements()}
@@ -238,7 +278,7 @@ export default class DropZone extends React.Component {
                 }
 
 
-                {this.data ?
+                {this.data.length > 0 ?
                     <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.broker_country, this.data!)!.build())}>Descargar</Button>
                     : null
                 }

@@ -1,4 +1,5 @@
 import { Position } from '../aforix/Position';
+import IParser from './IParser';
 
 const ISIN = 'Symbol/ISIN';
 const NAME = 'Producto'
@@ -7,8 +8,20 @@ const PRICE = 'Precio de'
 const VALUE = 'Valor local'
 const VALUE_EUR = 'Valor en EUR'
 
-export default class DegiroParser {
-    static parse(file: string, default_pais: string, default_emisor: number, default_valor: number, holders: number): Position[] {
+export default class DegiroParser implements IParser {
+    forex: { [name: string]: number; };
+    open_positions: Position[];
+
+    getName(): string {
+        return '';
+    }
+
+    constructor(file: string) {
+        this.forex = {}
+        this.open_positions = this.parse(file, '', 0, 0, 0);
+    }
+
+    parse(file: string, default_pais: string, default_emisor: number, default_valor: number, holders: number): Position[] {
         var headers: { [key: string]: number };
         var positions: Position[] = [];
         var re = /"(\d+),(\d+)"/g
@@ -19,9 +32,13 @@ export default class DegiroParser {
             } else if (line.length > 0) {
                 // remove quotes
                 var data = line.replaceAll(re, "$1.$2").split(",")
-                console.log(data)
+
                 if (!data[headers[NAME]].includes("CASH")) {
                     var { value, currency } = DegiroParser.getCurrencyValue(data[headers[VALUE]]);
+                    var eur = parseFloat(data[headers[VALUE_EUR]]);
+
+                    this.forex[currency] = value / eur;
+
                     positions.push(new Position(
                         data[headers[ISIN]],
                         data[headers[NAME]],

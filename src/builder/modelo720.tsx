@@ -61,7 +61,7 @@ export default class Builder720 {
             position.description.padEnd(41, ' '), // Identificacion de la identidad
             ''.padEnd(20, ' '), // Numero identificación fiscal
             ''.padEnd(162, ' '), // DOMICILIO DE LA ENTIDAD O UBICACIÓN DEL INMUEBLE
-            position.ISIN.slice(0, 2), // country of broker
+            position.ISIN.slice(0, 2).padEnd(2, ' '), // country of broker
             '00000000', // FECHA DE INCORPORACIÓN
             'A', // A o M: ORIGEN DEL BIEN O DERECHO
             '00000000', //424 - 431 Numérico  FECHA DE EXTINCIÓN
@@ -84,10 +84,10 @@ export default class Builder720 {
             '1',
             '720',
             '2020', // year
-            this.DNI.padStart(9, '0'), //DNI
+            this.DNI.padStart(9, ' '), //DNI
             this.data[0].getName().padEnd(40, ' '),
             'T',
-            '669696969',
+            this.DNI.padStart(9, ' '), //Phone,
             this.data[0].getName().padEnd(40, ' '),
             '720'.padEnd(13, '0'),
             ' ', // Complementaria

@@ -22,7 +22,8 @@ export default class DropZone extends React.Component {
         dni: '',
         text: '',
         status: 'dark',
-        broker_country: '',
+        ib_country: '',
+        degiro_country: '',
         eurusd: '',
         filename: '',
         filenameDegiro: '',
@@ -92,12 +93,12 @@ export default class DropZone extends React.Component {
         if (type === 'IB') {
             readFiles(
                 (filename: string) => this.setState({ filename }),
-                (filename: string) => new InteractiveBrokersActivity(filename)
+                (filename: string) => new InteractiveBrokersActivity(filename, this.state.ib_country)
             )
         } else if (type === 'DEGIRO') {
             readFiles(
                 (filename: string) => this.setState({ filenameDegiro: filename }),
-                (filename: string) => new DegiroParser(filename)
+                (filename: string) => new DegiroParser(filename, this.state.degiro_country)
             )
         }
 
@@ -221,16 +222,36 @@ export default class DropZone extends React.Component {
                             onChange={e => this.setState({ dni: e.target.value })} />
                     </Form.Group>
 
-                    <Form.Group controlId="broker">
-                        <Form.Label>País del broker</Form.Label>
-                        <Form.Control value={this.state.broker_country}
-                            onChange={e => this.setState({ broker_country: e.target.value })} as="select" >
-                            <option value=''></option>
-                            {countries.map((c) => {
-                                return <option value={c['code']}>{c['text'].slice(0, 120)}{(c['text'].length > 120) ? '...' : ''}</option>
-                            })}
-                        </Form.Control>
-                    </Form.Group>
+
+                    <Row>
+                        <Col>
+                            <Form.Group controlId="broker">
+
+                                <Form.Label>País del broker Interactive Brokers</Form.Label>
+                                <Form.Control value={this.state.ib_country}
+                                    onChange={e => this.setState({ ib_country: e.target.value })} as="select" >
+                                    <option value=''></option>
+                                    {countries.map((c) => {
+                                        return <option value={c['code']}>{c['text'].slice(0, 120)}{(c['text'].length > 120) ? '...' : ''}</option>
+                                    })}
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+
+                        <Col>
+
+                            <Form.Group controlId="broker">
+                                <Form.Label>País del broker Degiro</Form.Label>
+                                <Form.Control value={this.state.degiro_country}
+                                    onChange={e => this.setState({ degiro_country: e.target.value })} as="select" >
+                                    <option value=''></option>
+                                    {countries.map((c) => {
+                                        return <option value={c['code']}>{c['text'].slice(0, 120)}{(c['text'].length > 120) ? '...' : ''}</option>
+                                    })}
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
                     <Form.Group>
                         <Row>
@@ -248,6 +269,8 @@ export default class DropZone extends React.Component {
                                     id="custom-file"
                                     label={this.state.filename}
                                     custom
+                                    disabled={this.state.ib_country.length == 0}
+
                                 />
 
                             </Col>
@@ -257,13 +280,14 @@ export default class DropZone extends React.Component {
                                     id="file-degiro"
                                     label={this.state.filenameDegiro}
                                     custom
+                                    disabled={this.state.degiro_country.length == 0}
                                 />
                             </Col>
                         </Row>
                     </Form.Group>
                     <Form.Group>
                         <Form.Label>
-                            Nobre:
+                            Nombre:
                         </Form.Label>
                         <Form.Control value={this.state.name}
                             onChange={e => this.setState({ name: e.target.value })} />
@@ -279,7 +303,7 @@ export default class DropZone extends React.Component {
 
 
                 {this.data.length > 0 ?
-                    <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.broker_country, this.data!)!.build())}>Descargar</Button>
+                    <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.name, this.data!)!.build())}>Descargar</Button>
                     : null
                 }
             </div>

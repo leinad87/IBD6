@@ -1,4 +1,3 @@
-import { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } from 'constants';
 import { Position } from '../aforix/Position';
 import IParser from '../parsers/IParser';
 
@@ -9,14 +8,14 @@ export default class Builder720 {
     data: IParser[];
     DNI: string;
     total_value: number;
-    broker_country: string;
     forex: { [name: string]: number } = {};
+    name: string;
 
-    constructor(DNI: string, broker_country: string, data: IParser[]) {
+    constructor(DNI: string, name: string, data: IParser[]) {
         this.DNI = DNI;
         this.data = data;
         this.total_value = 0.0;
-        this.broker_country = broker_country;
+        this.name = name;
 
         data.forEach(i => this.forex = _.merge(this.forex, i.forex));
     }
@@ -46,13 +45,13 @@ export default class Builder720 {
             this.DNI.padStart(9, '0'), //DNI
             this.DNI.padStart(9, '0'), //DNI
             '         ',
-            this.data[0].getName().padEnd(40, ' '),
+            this.name.padEnd(40, ' '),
             '1', // condicion declarante
             '                         ',
             'V',
             '1',
             '                         ',
-            this.broker_country, // country of broker
+            position.broker_country.padEnd(2, ' '), // country of broker
             '1',
             position.ISIN.padEnd(12, ' '), //ISIN
             ' ',
@@ -85,10 +84,10 @@ export default class Builder720 {
             '720',
             '2020', // year
             this.DNI.padStart(9, ' '), //DNI
-            this.data[0].getName().padEnd(40, ' '),
+            this.name.padEnd(40, ' '),
             'T',
-            this.DNI.padStart(9, ' '), //Phone,
-            this.data[0].getName().padEnd(40, ' '),
+            '666666666', //Phone,
+            this.name.padEnd(40, ' '),
             '720'.padEnd(13, '0'),
             ' ', // Complementaria
             ' ', // Substitutiva

@@ -16,12 +16,12 @@ export default class DegiroParser implements IParser {
         return '';
     }
 
-    constructor(file: string) {
+    constructor(file: string, broker_country: string) {
         this.forex = {}
-        this.open_positions = this.parse(file, '', 0, 0, 0);
+        this.open_positions = this.parse(file, '', 0, 0, 0, broker_country);
     }
 
-    parse(file: string, default_pais: string, default_emisor: number, default_valor: number, holders: number): Position[] {
+    parse(file: string, default_pais: string, default_emisor: number, default_valor: number, holders: number, broker_country: string): Position[] {
         var headers: { [key: string]: number };
         var positions: Position[] = [];
         var re = /"(\d+),(\d+)"/g
@@ -47,7 +47,8 @@ export default class DegiroParser implements IParser {
                         currency,
                         default_pais,
                         default_valor,
-                        default_emisor
+                        default_emisor,
+                        broker_country
                     ))
                 }
             }

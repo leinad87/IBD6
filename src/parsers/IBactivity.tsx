@@ -14,12 +14,12 @@ export default class InteractiveBrokersActivity implements IParser {
     data: any;
     forex: { [name: string]: number };
 
-    constructor(file: string) {
+    constructor(file: string, broker_country: string) {
         this.open_positions = [];
         this.data = {}
         this.forex = { 'EUR': 1 }
 
-        this.parse(file)
+        this.parse(file, broker_country)
     }
 
     getName() {
@@ -27,7 +27,7 @@ export default class InteractiveBrokersActivity implements IParser {
             .filter((e: any) => e['Nombre del campo'] == "Nombre")[0]["Valor del campo"];
     }
 
-    parse(file: string) {
+    parse(file: string, broker_country: string) {
 
         let groups = file.split("\n")
             .map((line) => [line.replace(/^\s+|\s+$/g, '').split(",")[0], line])
@@ -69,7 +69,7 @@ export default class InteractiveBrokersActivity implements IParser {
             })
 
         this.open_positions = result.map((p: any) => {
-            return new Position(p['ISIN'], p['Name'], p['Cantidad'], p['Valor'], p['Divisa'], 'Country', 0, 0)
+            return new Position(p['ISIN'], p['Name'], p['Cantidad'], p['Valor'], p['Divisa'], 'Country', 0, 0, broker_country)
         });
 
         groups[OPEN_POSITIONS]

@@ -1,3 +1,4 @@
+import forex from '../aforix/Forex';
 import { Position } from '../aforix/Position';
 import IParser from './IParser';
 
@@ -9,7 +10,7 @@ const VALUE = 'Valor local'
 const VALUE_EUR = 'Valor en EUR'
 
 export default class DegiroParser implements IParser {
-    forex: { [name: string]: number; };
+    forex: { [name: string]: forex; };
     open_positions: Position[];
 
     getName(): string {
@@ -37,7 +38,7 @@ export default class DegiroParser implements IParser {
                     var { value, currency } = DegiroParser.getCurrencyValue(data[headers[VALUE]]);
                     var eur = parseFloat(data[headers[VALUE_EUR]]);
 
-                    this.forex[currency] = value / eur;
+                    this.forex[currency] = new forex(value / eur);
 
                     positions.push(new Position(
                         data[headers[ISIN]],

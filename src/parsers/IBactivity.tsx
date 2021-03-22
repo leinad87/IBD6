@@ -1,5 +1,6 @@
 import { SSL_OP_EPHEMERAL_RSA } from 'constants';
 import { parse } from 'papaparse';
+import forex from '../aforix/Forex';
 import { Position } from '../aforix/Position';
 import IParser from './IParser';
 
@@ -12,12 +13,12 @@ const ACCOUNT_INFO = "Información sobre la cuenta"
 export default class InteractiveBrokersActivity implements IParser {
     open_positions: Position[];
     data: any;
-    forex: { [name: string]: number };
+    forex: { [name: string]: forex };
 
     constructor(file: string, broker_country: string) {
         this.open_positions = [];
         this.data = {}
-        this.forex = { 'EUR': 1 }
+        this.forex = { 'EUR': new forex(1) }
 
         this.parse(file, broker_country)
     }
@@ -76,7 +77,7 @@ export default class InteractiveBrokersActivity implements IParser {
             .filter((row: any) => row['Header'] == 'Total')
             .map((row: any, position: number, elements: any) => {
                 if (row['Divisa'] != 'EUR') {
-                    this.forex[row['Divisa']] = row['Valor'] / elements[position + 1]['Valor']
+                    this.forex[row['Divisa']] = new forex(row['Valor'] / elements[position + 1]['Valor'])
                 }
             })
     }

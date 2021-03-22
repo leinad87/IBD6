@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Form, Alert, Row, Col, Table, Pagination, Button, Badge, Modal } from 'react-bootstrap';
 
 import InteractiveBrokersActivity from '../../parsers/IBactivity';
@@ -10,28 +10,43 @@ import { Position } from '../../aforix/Position';
 import InformesImage from '../../images/informes.png';
 import DegiroParser from '../../parsers/degiro';
 import IParser from '../../parsers/IParser';
+import forex from '../../aforix/Forex';
 
 var _ = require('lodash');
+
 
 export default class DropZone extends React.Component {
 
     data: IParser[] = []
 
-    forex: { [name: string]: number } = {};
-    state = {
-        dni: '',
-        text: '',
-        status: 'dark',
-        ib_country: '',
-        degiro_country: '',
-        eurusd: '',
-        filename: '',
-        filenameDegiro: '',
-        active_page: 1,
-        modalShow: false,
-        name: '',
+    state: {
+        dni: string,
+        text: string,
+        status: string,
+        ib_country: string,
+        degiro_country: string,
+        eurusd: string,
+        filename: string,
+        filenameDegiro: string,
+        active_page: number,
+        modalShow: boolean,
+        name: string,
+        forex: { [name: string]: forex },
     }
-
+        = {
+            dni: '',
+            text: '',
+            status: 'dark',
+            ib_country: '',
+            degiro_country: '',
+            eurusd: '',
+            filename: '',
+            filenameDegiro: '',
+            active_page: 1,
+            modalShow: false,
+            name: '',
+            forex: {},
+        }
 
     downloadTxtFile = (name: string, content: string) => {
         const element = document.createElement("a");
@@ -76,7 +91,7 @@ export default class DropZone extends React.Component {
                     this.data.push(parser);
 
                     let warning = (parser!.open_positions!.filter((item: Position) => item.ISIN ? false : true).length > 0);
-                    this.forex = _.merge(this.forex, parser.forex);
+                    this.state.forex = _.merge(this.state.forex, parser.forex);
 
                     if (warning)
                         this.setState({ status: 'warning', text: 'Fichero cargado. Revise los elementos' })
@@ -108,15 +123,19 @@ export default class DropZone extends React.Component {
         const items = [];
 
         if (this.data != null) {
-            for (var key in this.forex) {
+            for (var key in this.state.forex) {
                 if (key == "EUR") continue;
 
                 items.push(
                     <Form.Group>
                         <Form.Label>EUR{key}</Form.Label>
-                        <Form.Control placeholder={this.forex[key].toFixed(4)}
-                            value={this.state.eurusd}
-                            onChange={e => this.setState({ eurusd: e.target.value })} />
+                        <Form.Control placeholder={this.state.forex[key].value.toPrecision(4)}
+                            value={this.state.forex[key].value}
+                            maxLength={6}
+                            onChange={e => {
+                                this.state.forex[key].setFromString(e.target.value)
+                                this.setState({ state: this.state })
+                            }} />
                         <Form.Text className="text-muted">
                             Valor calculado a partir del informe subido
                     </Form.Text>
@@ -141,7 +160,7 @@ export default class DropZone extends React.Component {
                     <td>{item.ISIN}</td>
                     <td>{item.count}</td>
                     <td>{item.value}{item.currency}</td>
-                    <td>{(item.value / this.forex[item.currency]).toFixed(2)}EUR</td>
+                    <td>{(item.value / this.state.forex[item.currency].value).toFixed(2)}EUR</td>
                 </tr>
             )
         }));
@@ -303,7 +322,7 @@ export default class DropZone extends React.Component {
 
 
                 {this.data.length > 0 ?
-                    <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.name, this.data!)!.build())}>Descargar</Button>
+                    <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.name, this.data!, this.state.forex)!.build())}>Descargar</Button>
                     : null
                 }
             </div>

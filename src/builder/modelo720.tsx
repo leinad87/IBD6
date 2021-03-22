@@ -1,3 +1,4 @@
+import forex from '../aforix/Forex';
 import { Position } from '../aforix/Position';
 import IParser from '../parsers/IParser';
 
@@ -8,16 +9,15 @@ export default class Builder720 {
     data: IParser[];
     DNI: string;
     total_value: number;
-    forex: { [name: string]: number } = {};
     name: string;
+    forex: { [name: string]: forex } = {};
 
-    constructor(DNI: string, name: string, data: IParser[]) {
+    constructor(DNI: string, name: string, data: IParser[], forex: { [name: string]: forex }) {
         this.DNI = DNI;
         this.data = data;
         this.total_value = 0.0;
         this.name = name;
-
-        data.forEach(i => this.forex = _.merge(this.forex, i.forex));
+        this.forex = forex;
     }
 
 
@@ -35,7 +35,7 @@ export default class Builder720 {
     }
 
     reg_detail(position: Position) {
-        let value_eur = position.value / this.forex[position.currency];
+        let value_eur = position.value / this.forex[position.currency].value;
         this.total_value += value_eur;
 
         return ''.concat(

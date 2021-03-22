@@ -51,7 +51,7 @@ export default class Builder720 {
             this.DNI.padStart(9, '0'), //DNI
             '         ',
             this.name.padEnd(40, ' '),
-            this.declarant_condition.toFixed(1), // condicion declarante
+            this.declarant_condition.toFixed(0), // condicion declarante
             '                         ',
             'V',
             '1',

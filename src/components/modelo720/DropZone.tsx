@@ -334,14 +334,14 @@ export default class DropZone extends React.Component {
                         </Form.Label>
                                 <Form.Control value={this.state.declarant_condition}
                                     onChange={e => this.setState({ declarant_condition: e.target.value })} as="select" >
-                                    <option value='1'>Titular</option>
-                                    <option value='2'>Representante</option>
-                                    <option value='3'>Autorizado</option>
-                                    <option value='4'>Beneficiario</option>
-                                    <option value='5'>Usufructuario</option>
-                                    <option value='6'>Tomador</option>
-                                    <option value='7'>Con poder de disposición</option>
-                                    <option value='8'>Otras  formas  de  titularidad  real  conforme  a  lo  previsto  en  el  artículo  4.2.  de  la  Ley  10/2010,  de  28 de abril</option>
+                                    <option value={1}>Titular</option>
+                                    <option value={2}>Representante</option>
+                                    <option value={3}>Autorizado</option>
+                                    <option value={4}>Beneficiario</option>
+                                    <option value={5}>Usufructuario</option>
+                                    <option value={6}>Tomador</option>
+                                    <option value={7}>Con poder de disposición</option>
+                                    <option value={8}>Otras  formas  de  titularidad  real  conforme  a  lo  previsto  en  el  artículo  4.2.  de  la  Ley  10/2010,  de  28 de abril</option>
                                 </Form.Control>
                             </Form.Group>
                         </Col>

@@ -32,6 +32,8 @@ export default class DropZone extends React.Component {
         modalShow: boolean,
         name: string,
         forex: { [name: string]: forex },
+        participation: number,
+        declarant_condition: number,
     }
         = {
             dni: '',
@@ -46,6 +48,8 @@ export default class DropZone extends React.Component {
             modalShow: false,
             name: '',
             forex: {},
+            participation: 100,
+            declarant_condition: 1
         }
 
     downloadTxtFile = (name: string, content: string) => {
@@ -304,13 +308,49 @@ export default class DropZone extends React.Component {
                             </Col>
                         </Row>
                     </Form.Group>
-                    <Form.Group>
-                        <Form.Label>
-                            Nombre:
+                    <Row>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>
+                                    Nombre:
                         </Form.Label>
-                        <Form.Control value={this.state.name}
-                            onChange={e => this.setState({ name: e.target.value })} />
-                    </Form.Group>
+                                <Form.Control value={this.state.name}
+                                    onChange={e => this.setState({ name: e.target.value })} />
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>
+                                    Porcentaje de participación:
+                        </Form.Label>
+                                <Form.Control value={this.state.participation}
+                                    onChange={e => this.setState({ participation: e.target.value })} />
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>
+                                    Clave de condición del declarante:
+                        </Form.Label>
+                                <Form.Control value={this.state.declarant_condition}
+                                    onChange={e => this.setState({ declarant_condition: e.target.value })} as="select" >
+                                    <option value='1'>Titular</option>
+                                    <option value='2'>Representante</option>
+                                    <option value='3'>Autorizado</option>
+                                    <option value='4'>Beneficiario</option>
+                                    <option value='5'>Usufructuario</option>
+                                    <option value='6'>Tomador</option>
+                                    <option value='7'>Con poder de disposición</option>
+                                    <option value='8'>Otras  formas  de  titularidad  real  conforme  a  lo  previsto  en  el  artículo  4.2.  de  la  Ley  10/2010,  de  28 de abril</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+
+
+
+
+
                     {this.displayForex()}
                     {this.displayElements()}
 
@@ -322,7 +362,7 @@ export default class DropZone extends React.Component {
 
 
                 {this.data.length > 0 ?
-                    <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.name, this.data!, this.state.forex)!.build())}>Descargar</Button>
+                    <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.name, this.data!, this.state.forex, this.state.participation, this.state.declarant_condition)!.build())}>Descargar</Button>
                     : null
                 }
             </div>

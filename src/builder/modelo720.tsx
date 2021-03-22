@@ -11,13 +11,18 @@ export default class Builder720 {
     total_value: number;
     name: string;
     forex: { [name: string]: forex } = {};
+    participation: number;
+    declarant_condition: number;
 
-    constructor(DNI: string, name: string, data: IParser[], forex: { [name: string]: forex }) {
+
+    constructor(DNI: string, name: string, data: IParser[], forex: { [name: string]: forex }, participation: number, declarant_condition: number) {
         this.DNI = DNI;
         this.data = data;
         this.total_value = 0.0;
         this.name = name;
         this.forex = forex;
+        this.participation = participation;
+        this.declarant_condition = declarant_condition;
     }
 
 
@@ -46,7 +51,7 @@ export default class Builder720 {
             this.DNI.padStart(9, '0'), //DNI
             '         ',
             this.name.padEnd(40, ' '),
-            '1', // condicion declarante
+            this.declarant_condition.toFixed(1), // condicion declarante
             '                         ',
             'V',
             '1',
@@ -73,7 +78,7 @@ export default class Builder720 {
             'A', //CLAVE DE REPRESENTACIÓN DE VALORES
             Math.round(position.count * 100).toString().padStart(12, '0'), // NÚMERO DE VALORES
             ' ', //CLAVE TIPO DE BIEN INMUEBLE
-            Math.round(100 * 100).toString().padStart(5, '0'), //PORCENTAJE DE PARTICIPACIÓN
+            (this.participation * 100).toFixed(0).padStart(5, '0'), //PORCENTAJE DE PARTICIPACIÓN
             ''.padEnd(20, ' ') // white spaces
         );
     }

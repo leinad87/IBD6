@@ -8,7 +8,6 @@ import './DropZone.css';
 import countries from '../../static/countries.json'
 import { Position } from '../../aforix/Position';
 import InformesImage from '../../images/informes.png';
-import { exception } from 'console';
 
 export default class DropZone extends React.Component {
 
@@ -110,7 +109,7 @@ export default class DropZone extends React.Component {
         if (this.data == null) { return }
         let items = this.data!.open_positions!.map((item: Position, index: number) => {
             return (
-                <tr>
+                <tr key={index + 1}>
                     <td>{index + 1}</td>
                     <td>{item.description}</td>
                     <td>{item.ISIN}</td>
@@ -133,7 +132,7 @@ export default class DropZone extends React.Component {
             <div>
                 <Table striped bordered hover size="sm" variant="dark">
                     <thead>
-                        <tr>
+                        <tr key="header">
                             <th>#</th>
                             <th>Nombre</th>
                             <th>ISIN</th>
@@ -207,7 +206,7 @@ export default class DropZone extends React.Component {
                             onChange={e => this.setState({ broker_country: e.target.value })} as="select" >
                             <option value=''></option>
                             {countries.map((c) => {
-                                return <option value={c['code']}>{c['text'].slice(0, 120)}{(c['text'].length > 120) ? '...' : ''}</option>
+                                return <option key={c['code']} value={c['code']}>{c['text'].slice(0, 120)}{(c['text'].length > 120) ? '...' : ''}</option>
                             })}
                         </Form.Control>
                     </Form.Group>
@@ -215,17 +214,16 @@ export default class DropZone extends React.Component {
                     <Form.Group>
                         <Form.Label>
                             Informe anual Interacive Brokers
-                            <a href="#"><Badge variant="info" onClick={() => this.setState({ modalShow: true })}>+Info</Badge ></a>
+                            <a href="#"><Badge bg="info" onClick={() => this.setState({ modalShow: true })}>+Info</Badge ></a>
                             <this.MyVerticallyCenteredModal
                                 show={this.state.modalShow}
                                 onHide={() => this.setState({ modalShow: false })}
                             />
 
                         </Form.Label>
-                        <Form.File onChange={this.onFileChange}
+                        <Form.Control type="file" 
+                            onChange={this.onFileChange}
                             id="custom-file"
-                            label={this.state.filename}
-                            custom
                         />
                     </Form.Group>
                     {this.displayForex()}

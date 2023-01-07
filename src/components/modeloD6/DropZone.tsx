@@ -110,9 +110,9 @@ export default class DropZoneD6 extends React.Component {
                     <Accordion>
                         <Card>
                             <Card.Header>
-                                <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                                <Accordion.Header as={Button} variant="link" eventKey="0">
                                     Configuración avanzada
-      </Accordion.Toggle>
+      </Accordion.Header>
                             </Card.Header>
                             <Accordion.Collapse eventKey="0">
                                 <Card.Body>

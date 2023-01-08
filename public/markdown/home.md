@@ -11,7 +11,7 @@ Haz click [aquí](/modelo/D6) para comenzar con el proceso.
 
 
 #### Modelo 720: Declaración sobre bienes y derechos situados en el extranjero.
-Este modelo aún está en desarrollo y solamente disponible para extractos de [Interactive Brokers](https://www.interactivebrokers.eu).
+Admite extractos de [Interactive Brokers](https://www.interactivebrokers.eu) y [Degiro](https://www.degiro.es/). 
 
 Haz click [aquí](/modelo/720) para comenzar con el proceso.
 

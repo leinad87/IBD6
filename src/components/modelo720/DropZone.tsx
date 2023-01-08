@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Form, Alert, Row, Col, Table, Pagination, Button, Badge, Modal } from 'react-bootstrap';
 
 import InteractiveBrokersActivity from '../../parsers/IBactivity';
@@ -8,22 +8,49 @@ import './DropZone.css';
 import countries from '../../static/countries.json'
 import { Position } from '../../aforix/Position';
 import InformesImage from '../../images/informes.png';
+import DegiroParser from '../../parsers/degiro';
+import IParser from '../../parsers/IParser';
+import forex from '../../aforix/Forex';
+
+var _ = require('lodash');
+
 
 export default class DropZone extends React.Component {
 
-    data: InteractiveBrokersActivity | null = null
+    data: IParser[] = []
 
-    state = {
-        dni: '',
-        text: '',
-        status: 'dark',
-        broker_country: '',
-        eurusd: '',
-        filename: '',
-        active_page: 1,
-        modalShow: false,
+    state: {
+        dni: string,
+        text: string,
+        status: string,
+        ib_country: string,
+        degiro_country: string,
+        eurusd: string,
+        filename: string,
+        filenameDegiro: string,
+        active_page: number,
+        modalShow: boolean,
+        name: string,
+        forex: { [name: string]: forex },
+        participation: number,
+        declarant_condition: number,
     }
-
+        = {
+            dni: '',
+            text: '',
+            status: 'dark',
+            ib_country: '',
+            degiro_country: '',
+            eurusd: '',
+            filename: '',
+            filenameDegiro: '',
+            active_page: 1,
+            modalShow: false,
+            name: '',
+            forex: {},
+            participation: 100,
+            declarant_condition: 1
+        }
 
     downloadTxtFile = (name: string, content: string) => {
         const element = document.createElement("a");
@@ -47,55 +74,77 @@ export default class DropZone extends React.Component {
         e.preventDefault();
     }
 
-    fileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    onFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
         e.preventDefault();
-        this.uploadFile(e.dataTransfer.files);
-    }
-
-    onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        this.uploadFile(e!.target!.files!);
+        this.uploadFile(e!.target!.files!, type);
+        console.log(e)
     };
 
-    uploadFile(files: any) {
+    uploadFile(files: any, type: string) {
 
-        var promises = [];
-        for (var i = 0; i < files.length; i++) {
-            this.setState({ filename: files[i].name });
-            promises.push(files[i].text())
+        let readFiles = (setFileName: any, parse: any) => {
+            var promises = [];
+            for (var i = 0; i < files.length; i++) {
+                setFileName(files[i].name);
+                promises.push(files[i].text())
+            }
+
+            Promise.all(promises)
+                .then((file_texts) => {
+                    let parser = parse(file_texts[0])
+                    this.data.push(parser);
+
+                    let warning = (parser!.open_positions!.filter((item: Position) => item.ISIN ? false : true).length > 0);
+                    this.state.forex = _.merge(this.state.forex, parser.forex);
+
+                    if (warning)
+                        this.setState({ status: 'warning', text: 'Fichero cargado. Revise los elementos' })
+                    else
+                        this.setState({ status: 'success', text: 'Fichero cargado' })
+
+                    if (parser.getName().length > 0)
+                        this.setState({ name: parser.getName() })
+                }).catch(() => {
+                    this.setState({ status: 'danger', text: 'Ha ocurrido un error al leer el fichero.' })
+                })
         }
 
-        Promise.all(promises)
-            .then((file_texts) => {
-                this.data = new InteractiveBrokersActivity(file_texts[0]);
-            }).then(() => {
+        if (type === 'IB') {
+            readFiles(
+                (filename: string) => this.setState({ filename }),
+                (filename: string) => new InteractiveBrokersActivity(filename, this.state.ib_country)
+            )
+        } else if (type === 'DEGIRO') {
+            readFiles(
+                (filename: string) => this.setState({ filenameDegiro: filename }),
+                (filename: string) => new DegiroParser(filename, this.state.degiro_country)
+            )
+        }
 
-                let warning = (this.data!.open_positions!.filter((item)=>item.ISIN?false:true).length > 0)
-
-                if (warning)
-                    this.setState({ status: 'warning', text: 'Fichero cargado. Revise los elementos' })
-                else
-                    this.setState({ status: 'success', text: 'Fichero cargado' })
-            }).catch(() => {
-                this.setState({ status: 'danger', text: 'Ha ocurrido un error al leer el fichero.' })
-            })
     }
 
     displayForex() {
         const items = [];
 
         if (this.data != null) {
-            for (var key in this.data.forex) {
+            for (var key in this.state.forex) {
                 if (key == "EUR") continue;
-                items.push(<Form.Group>
-                    <Form.Label>EUR{key}</Form.Label>
-                    <Form.Control placeholder={this.data!.forex[key].toFixed(4)}
-                        value={this.state.eurusd}
-                        onChange={e => this.setState({ eurusd: e.target.value })} />
-                    <Form.Text className="text-muted">
-                        Valor calculado a partir del informe subido
+
+                items.push(
+                    <Form.Group>
+                        <Form.Label>EUR{key}</Form.Label>
+                        <Form.Control placeholder={this.state.forex[key].value.toPrecision(4)}
+                            value={this.state.forex[key].value}
+                            maxLength={6}
+                            onChange={e => {
+                                this.state.forex[key].setFromString(e.target.value)
+                                this.setState({ state: this.state })
+                            }} />
+                        <Form.Text className="text-muted">
+                            Valor calculado a partir del informe subido
                     </Form.Text>
-                </Form.Group>)
+                    </Form.Group>
+                )
             }
         }
 
@@ -106,8 +155,8 @@ export default class DropZone extends React.Component {
 
     displayElements() {
 
-        if (this.data == null) { return }
-        let items = this.data!.open_positions!.map((item: Position, index: number) => {
+        if (this.data == null || this.data.length == 0) { return }
+        let items = this.data.flatMap(i => i.open_positions!.map((item: Position, index: number) => {
             return (
                 <tr key={index + 1}>
                     <td>{index + 1}</td>
@@ -115,10 +164,10 @@ export default class DropZone extends React.Component {
                     <td>{item.ISIN}</td>
                     <td>{item.count}</td>
                     <td>{item.value}{item.currency}</td>
-                    <td>{(item.value / this.data!.forex[item.currency]).toFixed(2)}EUR</td>
+                    <td>{(item.value / this.state.forex[item.currency].value).toFixed(2)}EUR</td>
                 </tr>
             )
-        });
+        }));
 
         let items_pagination = [];
         for (let number = 1; number <= ((items.length) / 10) + 1; number++) {
@@ -170,7 +219,7 @@ export default class DropZone extends React.Component {
                         <li>En la pestaña Extractos, ejecuta la consulta <b>Actividad</b> con las siguientes opciones:</li>
                         <ul>
                             <li>Periodo: <b>Anual</b></li>
-                            <li>Fecha: <b>2020</b></li>
+                            <li>Fecha: <b>{new Date().getFullYear() -1}</b></li>
                             <li>Formato: <b>CSV</b></li>
                         </ul>
                         <li>Es posible que tengas que esperar hasta que se genere el informe. A la derecha de pantalla informes puedes observar el progreso.</li>
@@ -187,11 +236,7 @@ export default class DropZone extends React.Component {
 
     render() {
         return (
-            <div className=""
-                onDragOver={this.dragOver}
-                onDragEnter={this.dragEnter}
-                onDragLeave={this.dragLeave}
-                onDrop={this.fileDrop}>
+            <div className="">
 
                 <Form>
                     <Form.Group controlId="formBasicEmail">
@@ -199,33 +244,107 @@ export default class DropZone extends React.Component {
                         <Form.Control placeholder="12345678Z" value={this.state.dni}
                             onChange={e => this.setState({ dni: e.target.value })} />
                     </Form.Group>
+                    <Row>
+                        <Col>
+                            <Form.Group controlId="broker">
 
-                    <Form.Group controlId="broker">
-                        <Form.Label>País del broker</Form.Label>
-                        <Form.Control value={this.state.broker_country}
-                            onChange={e => this.setState({ broker_country: e.target.value })} as="select" >
-                            <option value=''></option>
-                            {countries.map((c) => {
-                                return <option key={c['code']} value={c['code']}>{c['text'].slice(0, 120)}{(c['text'].length > 120) ? '...' : ''}</option>
-                            })}
-                        </Form.Control>
-                    </Form.Group>
+                                <Form.Label>País del broker Interactive Brokers</Form.Label>
+                                <Form.Control value={this.state.ib_country}
+                                    onChange={e => this.setState({ ib_country: e.target.value })} as="select" >
+                                    <option value=''></option>
+                                    {countries.map((c) => {
+                                        return <option value={c['code']}>{c['text'].slice(0, 120)}{(c['text'].length > 120) ? '...' : ''}</option>
+                                    })}
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+
+                        <Col>
+
+                            <Form.Group controlId="broker">
+                                <Form.Label>País del broker Degiro</Form.Label>
+                                <Form.Control value={this.state.degiro_country}
+                                    onChange={e => this.setState({ degiro_country: e.target.value })} as="select" >
+                                    <option value=''></option>
+                                    {countries.map((c) => {
+                                        return <option value={c['code']}>{c['text'].slice(0, 120)}{(c['text'].length > 120) ? '...' : ''}</option>
+                                    })}
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
                     <Form.Group>
-                        <Form.Label>
-                            Informe anual Interacive Brokers
+                        <Row>
+                            <Col>
+                                <Form.Label>
+                                    Informe anual Interacive Brokers
                             <a href="#"><Badge bg="info" onClick={() => this.setState({ modalShow: true })}>+Info</Badge ></a>
-                            <this.MyVerticallyCenteredModal
-                                show={this.state.modalShow}
-                                onHide={() => this.setState({ modalShow: false })}
-                            />
+                                    <this.MyVerticallyCenteredModal
+                                        show={this.state.modalShow}
+                                        onHide={() => this.setState({ modalShow: false })}
+                                    />
 
-                        </Form.Label>
-                        <Form.Control type="file" 
-                            onChange={this.onFileChange}
-                            id="custom-file"
-                        />
+                                </Form.Label>
+                                <Form.Control type="file" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onFileChange(e, 'IB')}
+                                    id="custom-file"
+                                    disabled={this.state.ib_country.length == 0}
+
+                                />
+
+                            </Col>
+                            <Col>
+                                <Form.Label>Informe anual Degiro</Form.Label>
+                                <Form.Control type="file" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onFileChange(e, 'DEGIRO')}
+                                    id="file-degiro"
+                                    disabled={this.state.degiro_country.length == 0}
+                                />
+                            </Col>
+                        </Row>
                     </Form.Group>
+                    <Row>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>
+                                    Nombre:
+                        </Form.Label>
+                                <Form.Control value={this.state.name}
+                                    onChange={e => this.setState({ name: e.target.value })} />
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>
+                                    Porcentaje de participación:
+                        </Form.Label>
+                                <Form.Control value={this.state.participation}
+                                    onChange={e => this.setState({ participation: e.target.value })} />
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group>
+                                <Form.Label>
+                                    Clave de condición del declarante:
+                        </Form.Label>
+                                <Form.Control value={this.state.declarant_condition}
+                                    onChange={e => this.setState({ declarant_condition: e.target.value })} as="select" >
+                                    <option value={1}>Titular</option>
+                                    <option value={2}>Representante</option>
+                                    <option value={3}>Autorizado</option>
+                                    <option value={4}>Beneficiario</option>
+                                    <option value={5}>Usufructuario</option>
+                                    <option value={6}>Tomador</option>
+                                    <option value={7}>Con poder de disposición</option>
+                                    <option value={8}>Otras  formas  de  titularidad  real  conforme  a  lo  previsto  en  el  artículo  4.2.  de  la  Ley  10/2010,  de  28 de abril</option>
+                                </Form.Control>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+
+
+
+
+
                     {this.displayForex()}
                     {this.displayElements()}
 
@@ -236,8 +355,8 @@ export default class DropZone extends React.Component {
                 }
 
 
-                {this.data ?
-                    <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.broker_country, this.data!)!.build())}>Descargar</Button>
+                {this.data.length > 0 ?
+                    <Button onClick={() => this.downloadTxtFile(this.state.dni, new Modelo720(this.state.dni, this.state.name, this.data!, this.state.forex, this.state.participation, this.state.declarant_condition)!.build())}>Descargar</Button>
                     : null
                 }
             </div>

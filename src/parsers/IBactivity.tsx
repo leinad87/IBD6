@@ -1,6 +1,8 @@
 import { SSL_OP_EPHEMERAL_RSA } from 'constants';
 import { parse } from 'papaparse';
+import forex from '../aforix/Forex';
 import { Position } from '../aforix/Position';
+import IParser from './IParser';
 
 const STATEMENT = "Statement";
 const OPEN_POSITIONS = "Posiciones abiertas";
@@ -8,25 +10,25 @@ const INFO = "Información de instrumento financiero"
 const ACCOUNT_INFO = "Información sobre la cuenta"
 
 
-export default class InteractiveBrokersActivity {
+export default class InteractiveBrokersActivity implements IParser {
     open_positions: Position[];
     data: any;
-    forex: {[name:string]: number};
+    forex: { [name: string]: forex };
 
-    constructor(file: string) {
+    constructor(file: string, broker_country: string) {
         this.open_positions = [];
         this.data = {}
-        this.forex = {'EUR': 1}
+        this.forex = { 'EUR': new forex(1) }
 
-        this.parse(file)
+        this.parse(file, broker_country)
     }
 
     getName() {
         return this.data[ACCOUNT_INFO]
-                .filter((e:any) => e['Nombre del campo'] == "Nombre")[0]["Valor del campo"];
+            .filter((e: any) => e['Nombre del campo'] == "Nombre")[0]["Valor del campo"];
     }
 
-    parse(file: string) {
+    parse(file: string, broker_country: string) {
 
         let groups = file.split("\n")
             .map((line) => [line.replace(/^\s+|\s+$/g, '').split(",")[0], line])
@@ -68,14 +70,14 @@ export default class InteractiveBrokersActivity {
             })
 
         this.open_positions = result.map((p: any) => {
-            return new Position(p['ISIN'], p['Name'], p['Cantidad'], p['Valor'], p['Divisa'], 'Country', 0, 0)
+            return new Position(p['ISIN'], p['Name'], p['Cantidad'], p['Valor'], p['Divisa'], 'Country', 0, 0, broker_country)
         });
 
         groups[OPEN_POSITIONS]
-            .filter((row:any) => row['Header'] == 'Total')
-            .map((row:any, position:number, elements:any) =>{
-                if( row['Divisa'] != 'EUR' ){
-                    this.forex[row['Divisa']] = row['Valor']/elements[position+1]['Valor']
+            .filter((row: any) => row['Header'] == 'Total')
+            .map((row: any, position: number, elements: any) => {
+                if (row['Divisa'] != 'EUR') {
+                    this.forex[row['Divisa']] = new forex(row['Valor'] / elements[position + 1]['Valor'])
                 }
             })
     }

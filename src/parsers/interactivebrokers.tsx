@@ -29,7 +29,8 @@ export default class InteractiveBrokersParser {
                     currency,
                     default_pais,
                     default_valor,
-                    default_emisor
+                    default_emisor,
+                    ''
                 ))
             }
         })

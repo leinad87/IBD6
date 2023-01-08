@@ -7,9 +7,10 @@ export class Position {
     country: string;
     valor: number;
     emisor: number;
+    broker_country: string;
 
     constructor(ISIN: string, description: string, count: number, value: number, currency: string,
-        country: string, valor: number, emisor: number) {
+        country: string, valor: number, emisor: number, broker_country: string) {
         this.ISIN = ISIN;
         this.description = description;
         this.count = count;
@@ -18,10 +19,11 @@ export class Position {
         this.country = country;
         this.valor = valor;
         this.emisor = emisor;
+        this.broker_country = broker_country;
     }
 
     split(count: number): Position[] {
-        if( count === 1){
+        if (count === 1) {
             return [this]
         }
 
@@ -47,7 +49,8 @@ export class Position {
                 this.currency,
                 this.country,
                 this.valor,
-                this.emisor
+                this.emisor,
+                this.broker_country
             )
         })
     }

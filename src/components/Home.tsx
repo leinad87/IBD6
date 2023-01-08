@@ -26,7 +26,7 @@ export default class Home extends Component<{}, AppState>{
         
         <div className="container mt-5" >
             <section>
-                <ReactMarkdown source={markdown} />
+                <ReactMarkdown children={markdown} />
             </section>
         </div >
     );

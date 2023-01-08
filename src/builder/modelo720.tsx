@@ -42,11 +42,12 @@ export default class Builder720 {
     reg_detail(position: Position) {
         let value_eur = position.value / this.forex[position.currency].value;
         this.total_value += value_eur;
+        let year = new Date().getFullYear() - 1;
 
         return ''.concat(
             '2',
             '720',
-            '2020', // year
+            year.toString(),
             this.DNI.padStart(9, '0'), //DNI
             this.DNI.padStart(9, '0'), //DNI
             '         ',
@@ -84,10 +85,12 @@ export default class Builder720 {
     }
 
     reg_declarante(count: number) {
+        let year = new Date().getFullYear() - 1;
+
         return ''.concat(
             '1',
             '720',
-            '2020', // year
+            year.toString(),
             this.DNI.padStart(9, ' '), //DNI
             this.name.padEnd(40, ' '),
             'T',

@@ -7,7 +7,7 @@ import Modelo from './components/Modelo'
 import Home from './components/Home'
 import {
   BrowserRouter as Router,
-  Switch,
+  Routes,
   Route
 } from "react-router-dom";
 
@@ -29,7 +29,7 @@ function App() {
             <Nav className="mr-auto">
               <Nav.Link href="/">Inicio</Nav.Link>
               <Nav.Link href="/modelo/D6">Modelo D6</Nav.Link>
-              <Nav.Link href="/modelo/720">Modelo 720<Badge pill variant="warning">BETA</Badge ></Nav.Link>
+              <Nav.Link href="/modelo/720">Modelo 720</Nav.Link>
             </Nav>
             
             <Button variant="info" target="_blank" href="https://paypal.me/leinad87">
@@ -40,14 +40,10 @@ function App() {
 
         </Navbar >
         <div className="content" >
-          <Switch>
-            <Route path="/modelo">
-              <Modelo/>
-            </Route>
-            <Route path="/">
-              <Home />
-            </Route>
-          </Switch>
+          <Routes>
+            <Route path="/modelo/*" element={<Modelo />}/>
+            <Route path="/" element={<Home />}/>
+          </Routes>
         </div>
       </Router>
 

@@ -158,7 +158,7 @@ export default class DropZone extends React.Component {
         if (this.data == null || this.data.length == 0) { return }
         let items = this.data.flatMap(i => i.open_positions!.map((item: Position, index: number) => {
             return (
-                <tr>
+                <tr key={index + 1}>
                     <td>{index + 1}</td>
                     <td>{item.description}</td>
                     <td>{item.ISIN}</td>
@@ -181,7 +181,7 @@ export default class DropZone extends React.Component {
             <div>
                 <Table striped bordered hover size="sm" variant="dark">
                     <thead>
-                        <tr>
+                        <tr key="header">
                             <th>#</th>
                             <th>Nombre</th>
                             <th>ISIN</th>
@@ -219,7 +219,7 @@ export default class DropZone extends React.Component {
                         <li>En la pestaña Extractos, ejecuta la consulta <b>Actividad</b> con las siguientes opciones:</li>
                         <ul>
                             <li>Periodo: <b>Anual</b></li>
-                            <li>Fecha: <b>2020</b></li>
+                            <li>Fecha: <b>{new Date().getFullYear() -1}</b></li>
                             <li>Formato: <b>CSV</b></li>
                         </ul>
                         <li>Es posible que tengas que esperar hasta que se genere el informe. A la derecha de pantalla informes puedes observar el progreso.</li>
@@ -244,8 +244,6 @@ export default class DropZone extends React.Component {
                         <Form.Control placeholder="12345678Z" value={this.state.dni}
                             onChange={e => this.setState({ dni: e.target.value })} />
                     </Form.Group>
-
-
                     <Row>
                         <Col>
                             <Form.Group controlId="broker">
@@ -281,17 +279,15 @@ export default class DropZone extends React.Component {
                             <Col>
                                 <Form.Label>
                                     Informe anual Interacive Brokers
-                            <a href="#"><Badge variant="info" onClick={() => this.setState({ modalShow: true })}>+Info</Badge ></a>
+                            <a href="#"><Badge bg="info" onClick={() => this.setState({ modalShow: true })}>+Info</Badge ></a>
                                     <this.MyVerticallyCenteredModal
                                         show={this.state.modalShow}
                                         onHide={() => this.setState({ modalShow: false })}
                                     />
 
                                 </Form.Label>
-                                <Form.File onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onFileChange(e, 'IB')}
+                                <Form.Control type="file" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onFileChange(e, 'IB')}
                                     id="custom-file"
-                                    label={this.state.filename}
-                                    custom
                                     disabled={this.state.ib_country.length == 0}
 
                                 />
@@ -299,10 +295,8 @@ export default class DropZone extends React.Component {
                             </Col>
                             <Col>
                                 <Form.Label>Informe anual Degiro</Form.Label>
-                                <Form.File onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onFileChange(e, 'DEGIRO')}
+                                <Form.Control type="file" onChange={(e: React.ChangeEvent<HTMLInputElement>) => this.onFileChange(e, 'DEGIRO')}
                                     id="file-degiro"
-                                    label={this.state.filenameDegiro}
-                                    custom
                                     disabled={this.state.degiro_country.length == 0}
                                 />
                             </Col>
